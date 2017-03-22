@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import edu.harvard.hms.dbmi.bd2k.irct.action.Action;
@@ -20,7 +23,8 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.util.Utilities;
 
 /**
- * A child node in an execution tree that can be executed. It can have children of its own.
+ * A child node in an execution tree that can be executed. It can have children
+ * of its own.
  * 
  * @author Jeremy R. Easton-Marks
  *
@@ -31,43 +35,51 @@ public class ExecutableChildNode implements Executable {
 	private boolean blocking;
 	private Action action;
 	private Map<String, Executable> children;
+	private Executable parent;
 	private Map<String, Result> childrenResults;
 	private ExecutableStatus state;
-	
+
 	private IRCTEventListener irctEventListener;
+
+	public ExecutableChildNode() {
+		this.setChildren(new HashMap<String, Executable>());
+		this.childrenResults = new HashMap<String, Result>();
+	}
 
 	@Override
 	public void setup(SecureSession secureSession) {
 		this.session = secureSession;
-		this.children = new HashMap<String, Executable>();
-		this.childrenResults = new HashMap<String, Result>();
 		this.state = ExecutableStatus.CREATED;
+
 		this.irctEventListener = Utilities.getIRCTEventListener();
 	}
 
 	@Override
 	public void run() throws ResourceInterfaceException {
 		irctEventListener.beforeAction(session, action);
-		
-		if (isBlocking() && !children.isEmpty()) {
+
+		if (isBlocking() && !getChildren().isEmpty()) {
 			runSequentially();
-		} else if (!children.isEmpty()){
+		} else if (!getChildren().isEmpty()) {
 			runConcurrently();
 		}
-		if(!childrenResults.isEmpty()) {
+		
+		
+		
+		if (!childrenResults.isEmpty()) {
 			action.updateActionParams(childrenResults);
 		}
-		
+
 		this.state = ExecutableStatus.RUNNING;
 		this.action.run(this.session);
 		this.state = ExecutableStatus.COMPLETED;
-		
+
 		irctEventListener.afterAction(session, action);
 	}
 
 	private void runSequentially() throws ResourceInterfaceException {
-		for (String key : this.children.keySet()) {
-			Executable executable = this.children.get(key);
+		for (String key : this.getChildren().keySet()) {
+			Executable executable = this.getChildren().get(key);
 			executable.setup(this.session);
 			executable.run();
 			childrenResults.put(key, executable.getResults());
@@ -75,25 +87,26 @@ public class ExecutableChildNode implements Executable {
 	}
 
 	private void runConcurrently() {
-		List<ExecutorThread> myThreads = new ArrayList<ExecutorThread>();
-		for (String key : this.children.keySet()) {
-			myThreads.add(new ExecutorThread(key, this.children.get(key),
-					this.session));
-		}
-		ExecutorService taskExecutor = Executors.newFixedThreadPool(10);
-		for (ExecutorThread executorThread : myThreads) {
-			taskExecutor.execute(executorThread);
-		}
-		taskExecutor.shutdown();
 		try {
-			taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+			ExecutorService mes = Executors.newFixedThreadPool(20);
+			List<Future<ExecutorIdentifier>> childResults = new ArrayList<Future<ExecutorIdentifier>>();
+			for (String childId : this.getChildren().keySet()) {
+				childResults.add(mes.submit(new ExecutorCallable(childId, this
+						.getChildren().get(childId), this.session)));
+			}
 
-		for (ExecutorThread executorThread : myThreads) {
-			childrenResults.put(executorThread.getId(),
-					executorThread.getResult());
+			mes.shutdown();
+			mes.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+			
+			for(Future<ExecutorIdentifier> fei : childResults) {
+				ExecutorIdentifier ei = fei.get();
+				
+				childrenResults.put(ei.getId(), ei.getResult());
+				
+			}
+			
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -107,11 +120,7 @@ public class ExecutableChildNode implements Executable {
 		return this.action.getResults(this.session);
 	}
 
-	/**
-	 * Returns the action that is to be executed
-	 * 
-	 * @return Action
-	 */
+	@Override
 	public Action getAction() {
 		return action;
 	}
@@ -119,7 +128,8 @@ public class ExecutableChildNode implements Executable {
 	/**
 	 * Sets the action that is to be executed
 	 * 
-	 * @param action Action
+	 * @param action
+	 *            Action
 	 */
 	public void setAction(Action action) {
 		this.action = action;
@@ -128,8 +138,8 @@ public class ExecutableChildNode implements Executable {
 	/**
 	 * Returns if the actions should be run synchronously
 	 * 
-	 * TRUE - Synchronously
-	 * FALSE - Asynchronously
+	 * TRUE - Synchronously FALSE - Asynchronously
+	 * 
 	 * @return Blocking
 	 */
 	public boolean isBlocking() {
@@ -139,69 +149,98 @@ public class ExecutableChildNode implements Executable {
 	/**
 	 * Sets if the actions should be run synchronously
 	 * 
-	 * TRUE - Synchronously
-	 * FALSE - Asynchronously
+	 * TRUE - Synchronously FALSE - Asynchronously
 	 * 
-	 * @param blocking Blocking
+	 * @param blocking
+	 *            Blocking
 	 */
 	public void setBlocking(boolean blocking) {
 		this.blocking = blocking;
 	}
+
+	/**
+	 * Returns a map of children executables that are to be run
+	 * 
+	 * @return Children Executable
+	 */
+	public Map<String, Executable> getChildren() {
+		return children;
+	}
+
+	/**
+	 * Sets a map of children executables that are to be run
+	 * 
+	 * @param Children
+	 *            Executable
+	 */
+	public void setChildren(Map<String, Executable> children) {
+		this.children = children;
+	}
+
+	public void addChild(String name, Executable child) {
+		child.setParent(this);
+		this.children.put(name, child);
+	}
+
+	public void removeChild(String name) {
+		Executable child = this.children.remove(name);
+		child.setParent(null);
+	}
+
+	@Override
+	public Executable getParent() {
+		return parent;
+	}
+
+	@Override
+	public void setParent(Executable parent) {
+		this.parent = parent;
+	}
 }
 
-/**
- * A subclass that implements a runnable execution thread for actions
- * 
- * @author Jeremy R. Easton-Marks
- *
- */
-class ExecutorThread implements Runnable {
-
+class ExecutorCallable implements Callable<ExecutorIdentifier> {
 	private String id;
 	private SecureSession session;
 	private Executable executable;
-	private Result result;
 
-	/**
-	 * Create the executor thread with the executable component
-	 * 
-	 * @param id Id of the executable
-	 * @param executable Executable
-	 * @param session Session to run it in
-	 */
-	public ExecutorThread(String id, Executable executable,
+	public ExecutorCallable(String id, Executable executable,
 			SecureSession session) {
+		this.id = id;
 		this.session = session;
 		this.executable = executable;
 	}
 
 	@Override
-	public void run() {
+	public ExecutorIdentifier call() throws Exception {
+		Result result = new Result();
+
 		executable.setup(this.session);
 		try {
 			executable.run();
-			this.result = executable.getResults();
+			result = executable.getResults();
 		} catch (ResourceInterfaceException e) {
 			result.setResultStatus(ResultStatus.ERROR);
+			result.setMessage(e.getMessage());
 		}
+
+		return new ExecutorIdentifier(this.id, result);
+	}
+}
+
+class ExecutorIdentifier {
+	private String id;
+	private Result result;
+
+	public ExecutorIdentifier(String id, Result result) {
+		this.id = id;
+		this.result = result;
 	}
 
-	/**
-	 * Returns the results
-	 * 
-	 * @return Results
-	 */
-	public Result getResult() {
-		return this.result;
-	}
-
-	/**
-	 * Sets the results
-	 * 
-	 * @return Results
-	 */
 	public String getId() {
 		return this.id;
 	}
 
+	public Result getResult() {
+		return this.result;
+	}
 }

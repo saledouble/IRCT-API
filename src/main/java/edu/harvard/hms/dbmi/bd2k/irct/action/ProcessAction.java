@@ -127,4 +127,9 @@ public class ProcessAction implements Action {
 	public ActionStatus getStatus() {
 		return status;
 	}
+	
+	@Override
+	public Resource getResource() {
+		return this.resource;
+	}
 }

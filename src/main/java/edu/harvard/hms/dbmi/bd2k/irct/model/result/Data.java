@@ -15,8 +15,12 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.ResultSetException;
  *
  */
 public interface Data {
+	/**
+	 * Returns a list of files associated with resource if applicable
+	 * 
+	 * @return List of files
+	 */
 	public List<File> getFileList();
-	// Administrative
 	/**
 	 * Releases the connection to the datasource
 	 * 

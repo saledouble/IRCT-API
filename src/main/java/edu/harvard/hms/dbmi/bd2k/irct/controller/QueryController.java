@@ -181,7 +181,7 @@ public class QueryController {
 			this.lastId++;
 		}
 
-		// Add the where clause to the query
+		// Add the select clause to the query
 		if (subQuery != null) {
 			subQuery.addClause(clauseId, sc);
 		} else {

@@ -38,7 +38,7 @@ public class ActionUtilities {
 	 */ 
 	static protected Result createResult(ResultDataType resultDataType) throws NamingException, PersistableException {
 		InitialContext ic = new InitialContext();
-		ResultController resultController = (ResultController) ic.lookup("java:module/ResultController");
+		ResultController resultController = (ResultController) ic.lookup("java:global/IRCT-CL/ResultController");
 		Result result = resultController.createResult(resultDataType); 
 		result.setJobType("ACTION");
 		return result;
@@ -52,7 +52,7 @@ public class ActionUtilities {
 	 */
 	static protected void mergeResult(Result result) throws NamingException {
 		InitialContext ic = new InitialContext();
-		ResultController resultController = (ResultController) ic.lookup("java:module/ResultController");
+		ResultController resultController = (ResultController) ic.lookup("java:global/IRCT-CL/ResultController");
 		resultController.mergeResult(result);
 	}
 	
@@ -70,7 +70,7 @@ public class ActionUtilities {
 	static protected Map<String, Object> convertResultSetFieldToObject(User user, List<Field> fields, Map<String, String> stringValues) throws NamingException, ResultSetException, PersistableException {
 		Map<String, Object> returns = new HashMap<String, Object>();
 		InitialContext ic = new InitialContext();
-		ResultController resultController = (ResultController) ic.lookup("java:module/ResultController");
+		ResultController resultController = (ResultController) ic.lookup("java:global/IRCT-CL/ResultController");
 		
 		for(Field field : fields) {
 			if(field.getDataTypes().contains(PrimitiveDataType.RESULTSET)) {

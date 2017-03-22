@@ -10,7 +10,7 @@ public class Utilities {
 	public static IRCTEventListener getIRCTEventListener() {
 		try {
 			InitialContext ic = new InitialContext();
-			return (IRCTEventListener) ic.lookup("java:module/IRCTEventListener");
+			return (IRCTEventListener) ic.lookup("java:global/IRCT-CL/IRCTEventListener");
 		} catch (NamingException e) {
 			e.printStackTrace();
 		}

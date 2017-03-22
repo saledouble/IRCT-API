@@ -21,6 +21,7 @@ import javax.transaction.UserTransaction;
 import edu.harvard.hms.dbmi.bd2k.irct.action.JoinAction;
 import edu.harvard.hms.dbmi.bd2k.irct.action.ProcessAction;
 import edu.harvard.hms.dbmi.bd2k.irct.action.QueryAction;
+import edu.harvard.hms.dbmi.bd2k.irct.executable.Executable;
 import edu.harvard.hms.dbmi.bd2k.irct.executable.ExecutableLeafNode;
 import edu.harvard.hms.dbmi.bd2k.irct.executable.ExecutionPlan;
 import edu.harvard.hms.dbmi.bd2k.irct.model.join.Join;
@@ -163,6 +164,25 @@ public class ExecutionController {
 
 		return newResult.getId();
 	}
+	
+	
+	public Long runExecutable(Executable executable, SecureSession secureSession) throws PersistableException {
+		Result newResult = new Result();
+		newResult.setJobType("EXECUTION");
+		if(secureSession != null) {
+			newResult.setUser(secureSession.getUser());
+		}
+		
+		newResult.setResultStatus(ResultStatus.RUNNING);
+		entityManager.persist(newResult);
+		
+		ExecutionPlan exp = new ExecutionPlan();
+		exp.setup(executable, secureSession);
+		runExecutionPlan(exp, newResult);
+
+		return newResult.getId();
+		
+	}
 
 	/**
 	 * Runs an execution plan
@@ -212,7 +232,9 @@ public class ExecutionController {
 				} catch (PersistableException e) {
 					result.setResultStatus(ResultStatus.ERROR);
 					result.setMessage(e.getMessage());
+					e.printStackTrace();
 				} catch (Exception e) {
+					e.printStackTrace();
 					log.info(e.getMessage());
 					result.setResultStatus(ResultStatus.ERROR);
 				} finally {

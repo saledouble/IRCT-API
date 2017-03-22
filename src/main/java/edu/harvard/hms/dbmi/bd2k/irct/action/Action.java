@@ -5,6 +5,7 @@ package edu.harvard.hms.dbmi.bd2k.irct.action;
 
 import java.util.Map;
 
+import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
@@ -49,4 +50,12 @@ public interface Action {
 	 */
 	ActionStatus getStatus();
 	
+	/**
+	 * Returns the resource the action is to be executed upon.
+	 * 
+	 * If the action is to be executed locally than it is set to null
+	 * 
+	 * @return Resource the action is to be run on
+	 */
+	Resource getResource();
 }

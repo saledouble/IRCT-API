@@ -40,5 +40,4 @@ public interface JoinImplementation {
 	 * @return Result data type
 	 */
 	ResultDataType getJoinDataType();
-	
 }

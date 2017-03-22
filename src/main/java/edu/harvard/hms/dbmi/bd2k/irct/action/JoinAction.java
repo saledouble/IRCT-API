@@ -10,6 +10,7 @@ import javax.naming.NamingException;
 
 import edu.harvard.hms.dbmi.bd2k.irct.model.join.Join;
 import edu.harvard.hms.dbmi.bd2k.irct.model.join.JoinImplementation;
+import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultStatus;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.PersistableException;
@@ -29,6 +30,7 @@ import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 public class JoinAction implements Action {
 	private Join join;
 	private ActionStatus status;
+	private Resource resource;
 	private Result result;
 	
 	private IRCTEventListener irctEventListener;
@@ -42,13 +44,16 @@ public class JoinAction implements Action {
 		this.status = ActionStatus.CREATED;
 		this.join = join;
 		this.irctEventListener = Utilities.getIRCTEventListener();
-		
+		this.resource = null;
 	}
 	
 	@Override
 	public void updateActionParams(Map<String, Result> updatedParams) {
-		for(String key : updatedParams.keySet()) {
-			this.join.getObjectValues().put(key, updatedParams.get(key).getId().toString());
+		for(String key : this.join.getStringValues().keySet()) {
+			String value = this.join.getStringValues().get(key);
+			if(updatedParams.containsKey(value)) {
+				this.join.getStringValues().put(key,  updatedParams.get(value).getId().toString());
+			}
 		}
 	}
 	
@@ -97,5 +102,10 @@ public class JoinAction implements Action {
 	@Override
 	public ActionStatus getStatus() {
 		return status;
+	}
+	
+	@Override
+	public Resource getResource() {
+		return this.resource;
 	}
 }

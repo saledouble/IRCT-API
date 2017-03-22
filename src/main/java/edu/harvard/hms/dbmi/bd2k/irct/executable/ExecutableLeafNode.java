@@ -24,13 +24,16 @@ public class ExecutableLeafNode implements Executable {
 	private ExecutableStatus state;
 	
 	private IRCTEventListener irctEventListener;
+	private Executable parent;
 
 	@Override
 	public void setup(SecureSession secureSession) {
 		this.session = secureSession;
 		this.state = ExecutableStatus.CREATED;
 		
-		this.irctEventListener = Utilities.getIRCTEventListener();
+		if(this.irctEventListener == null) {
+			this.irctEventListener = Utilities.getIRCTEventListener();
+		}
 	}
 
 	@Override
@@ -54,11 +57,7 @@ public class ExecutableLeafNode implements Executable {
 		return this.action.getResults(this.session);
 	}
 
-	/**
-	 * Returns the action that is to be executed
-	 * 
-	 * @return Action
-	 */
+	@Override
 	public Action getAction() {
 		return action;
 	}
@@ -73,4 +72,14 @@ public class ExecutableLeafNode implements Executable {
 		this.action = action;
 	}
 
+	@Override
+	public Executable getParent() {
+		return this.parent;
+	}
+
+	@Override
+	public void setParent(Executable parent) {
+		this.parent = parent;
+		
+	}
 }

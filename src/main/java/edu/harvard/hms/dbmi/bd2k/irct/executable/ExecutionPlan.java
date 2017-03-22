@@ -79,4 +79,13 @@ public class ExecutionPlan {
 		return this.status;
 	}
 
+	/**
+	 * Returns the current executable
+	 * 
+	 * @return Executable
+	 */
+	public Executable getExecutable() {
+		return this.executable;
+	}
+
 }

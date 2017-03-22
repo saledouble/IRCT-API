@@ -5,6 +5,8 @@ package edu.harvard.hms.dbmi.bd2k.irct.executable;
 
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
+import edu.harvard.hms.dbmi.bd2k.irct.action.Action;
+import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEventListener;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 
 /**
@@ -39,4 +41,26 @@ public interface Executable {
 	 * @throws ResourceInterfaceException An error occurred
 	 */
 	Result getResults() throws ResourceInterfaceException;
+	
+	/**
+	 * Returns the action that is to be executed
+	 * 
+	 * @return Action
+	 */
+	Action getAction(); 
+	
+	
+	/**
+	 * Returns the parent of the executable
+	 * 
+	 * @return Parent Executable
+	 */
+	Executable getParent();
+	
+	/**
+	 * Sets the parent of the executable
+	 * 
+	 * @param parent Parent
+	 */
+	void setParent(Executable parent);
 }

@@ -261,6 +261,16 @@ public class Query implements Serializable {
 	public void addClause(Long id, ClauseAbstract clause) {
 		this.clauses.put(id, clause);
 	}
+	
+
+	/**
+	 * Adds a new clause to the subQuery
+	 * 
+	 * @param clause Clause
+	 */
+	public void addClause(ClauseAbstract clause) {
+		this.clauses.put((long) this.clauses.size(), clause);
+	}
 
 	/**
 	 * Removes a clause from the subQuery
