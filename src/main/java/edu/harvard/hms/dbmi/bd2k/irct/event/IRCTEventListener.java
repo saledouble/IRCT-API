@@ -34,7 +34,7 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.ontology.Entity;
 import edu.harvard.hms.dbmi.bd2k.irct.model.process.IRCTProcess;
 import edu.harvard.hms.dbmi.bd2k.irct.model.query.Query;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.User;
 
@@ -267,7 +267,7 @@ public class IRCTEventListener {
 	 * @param result
 	 *            Result
 	 */
-	public void afterGetResult(Result result) {
+	public void afterGetResult(Job result) {
 		List<IRCTEvent> irctEvents = events.get("AfterGetResult");
 		if (irctEvents == null)
 			return;
@@ -282,7 +282,7 @@ public class IRCTEventListener {
 	 * @param result
 	 *            Result
 	 */
-	public void afterSaveResult(Result result) {
+	public void afterSaveResult(Job result) {
 		List<IRCTEvent> irctEvents = events.get("AfterSaveResult");
 		if (irctEvents == null)
 			return;
@@ -314,7 +314,7 @@ public class IRCTEventListener {
 	 * @param result
 	 *            Result
 	 */
-	public void beforeSaveResult(Result result) {
+	public void beforeSaveResult(Job result) {
 		List<IRCTEvent> irctEvents = events.get("BeforeSaveResult");
 		if (irctEvents == null)
 			return;

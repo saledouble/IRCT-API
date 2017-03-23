@@ -6,7 +6,7 @@ package edu.harvard.hms.dbmi.bd2k.irct.executable;
 import edu.harvard.hms.dbmi.bd2k.irct.action.Action;
 import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEventListener;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.util.Utilities;
 
@@ -53,7 +53,7 @@ public class ExecutableLeafNode implements Executable {
 	}
 
 	@Override
-	public Result getResults() throws ResourceInterfaceException {
+	public Job getResults() throws ResourceInterfaceException {
 		return this.action.getResults(this.session);
 	}
 

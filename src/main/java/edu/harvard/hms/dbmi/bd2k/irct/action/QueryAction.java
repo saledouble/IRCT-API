@@ -14,8 +14,8 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.query.WhereClause;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.implementation.QueryResourceImplementationInterface;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.Persistable;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultStatus;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobStatus;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.util.Utilities;
 import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEventListener;
@@ -32,7 +32,7 @@ public class QueryAction implements Action {
 	private Query query;
 	private Resource resource;
 	private ActionStatus status;
-	private Result result;
+	private Job job;
 
 	private IRCTEventListener irctEventListener;
 
@@ -52,7 +52,7 @@ public class QueryAction implements Action {
 	}
 
 	@Override
-	public void updateActionParams(Map<String, Result> updatedParams) {
+	public void updateActionParams(Map<String, Job> updatedParams) {
 		for (String key : updatedParams.keySet()) {
 			Long clauseId = Long.valueOf(key.split(".")[0]);
 			String parameterId = key.split(".")[1];
@@ -74,68 +74,68 @@ public class QueryAction implements Action {
 			QueryResourceImplementationInterface queryInterface = (QueryResourceImplementationInterface) resource
 					.getImplementingInterface();
 
-			this.result = ActionUtilities.createResult(queryInterface
+			this.job = ActionUtilities.createJob(queryInterface
 					.getQueryDataType(query));
 
 			if (session != null) {
-				this.result.setUser(session.getUser());
+				this.job.setUser(session.getUser());
 			}
 			
 			
 
-			this.result = queryInterface.runQuery(session, query, result);
+			this.job = queryInterface.runQuery(session, query, job);
 
 			// Update the result in the database
-			ActionUtilities.mergeResult(this.result);
+			ActionUtilities.mergeResult(this.job);
 		} catch (Exception e) {
-			this.result.setResultStatus(ResultStatus.ERROR);
-			this.result.setMessage(e.getMessage());
+			this.job.setJobStatus(JobStatus.ERROR);
+			this.job.setMessage(e.getMessage());
 			this.status = ActionStatus.ERROR;
 		}
 		irctEventListener.afterQuery(session, resource, query);
 	}
 
 	@Override
-	public Result getResults(SecureSession session)
+	public Job getResults(SecureSession session)
 			throws ResourceInterfaceException {
 		try {
-			this.result = ((QueryResourceImplementationInterface) resource
-					.getImplementingInterface()).getResults(session, result);
+			this.job = ((QueryResourceImplementationInterface) resource
+					.getImplementingInterface()).getResults(session, job);
 
-			while ((this.result.getResultStatus() != ResultStatus.ERROR)
-					&& (this.result.getResultStatus() != ResultStatus.COMPLETE)) {
+			while ((this.job.getJobStatus() != JobStatus.ERROR)
+					&& (this.job.getJobStatus() != JobStatus.COMPLETE)) {
 				Thread.sleep(3000);
-				this.result = ((QueryResourceImplementationInterface) resource
+				this.job = ((QueryResourceImplementationInterface) resource
 						.getImplementingInterface())
-						.getResults(session, result);
+						.getResults(session, job);
 			}
 
-			if (this.result.getResultStatus() == ResultStatus.COMPLETE) {
-				if (((Persistable) result.getData()).isPersisted()) {
-					((Persistable) result.getData()).merge();
+			if (this.job.getJobStatus() == JobStatus.COMPLETE) {
+				if (((Persistable) job.getData()).isPersisted()) {
+					((Persistable) job.getData()).merge();
 				} else {
-					((Persistable) result.getData()).persist();
+					((Persistable) job.getData()).persist();
 				}
 
 			}
 
-			result.getData().close();
+			job.getData().close();
 		} catch (Exception e) {
-			this.result.setResultStatus(ResultStatus.ERROR);
-			this.result.setMessage(e.getMessage());
+			this.job.setJobStatus(JobStatus.ERROR);
+			this.job.setMessage(e.getMessage());
 		}
 
-		result.setEndTime(new Date());
+		job.setEndTime(new Date());
 		// Save the query Action
 		try {
-			ActionUtilities.mergeResult(result);
+			ActionUtilities.mergeResult(job);
 			this.status = ActionStatus.COMPLETE;
 		} catch (NamingException e) {
-			result.setMessage(e.getMessage());
+			job.setMessage(e.getMessage());
 			this.status = ActionStatus.ERROR;
 		}
 
-		return this.result;
+		return this.job;
 	}
 
 	/**

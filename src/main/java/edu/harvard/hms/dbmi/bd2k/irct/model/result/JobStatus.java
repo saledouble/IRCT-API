@@ -4,17 +4,17 @@
 package edu.harvard.hms.dbmi.bd2k.irct.model.result;
 
 /**
- * An enum representing all the different states a result can be in.
+ * An enum representing all the different states a job can be in.
  * 
- * CREATED - The result has been created but not run
- * RUNNING - The result is currently running but has not completed
- * COMPLETE - The result is ready
- * AVAILABLE - The result is available to the user
+ * CREATED - The job has been created but not run
+ * RUNNING - The job is currently running but has not completed
+ * COMPLETE - The job is ready
+ * AVAILABLE - The job is available to the user
  * ERROR - An error occurred
  * 
  * @author Jeremy R. Easton-Marks
  *
  */
-public enum ResultStatus {
+public enum JobStatus {
 	CREATED, RUNNING, AVAILABLE, COMPLETE, ERROR;
 }

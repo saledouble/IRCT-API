@@ -28,8 +28,8 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.join.Join;
 import edu.harvard.hms.dbmi.bd2k.irct.model.process.IRCTProcess;
 import edu.harvard.hms.dbmi.bd2k.irct.model.query.Query;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.Persistable;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultStatus;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobStatus;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.PersistableException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 
@@ -69,14 +69,14 @@ public class ExecutionController {
 	 */
 	public Long runProcess(IRCTProcess process, SecureSession secureSession)
 			throws PersistableException {
-		Result newResult = new Result();
-		newResult.setJobType("EXECUTION");
+		Job newJob = new Job();
+		newJob.setJobType("EXECUTION");
 		if(secureSession != null) {
-			newResult.setUser(secureSession.getUser());
+			newJob.setUser(secureSession.getUser());
 		}
 
-		newResult.setResultStatus(ResultStatus.RUNNING);
-		entityManager.persist(newResult);
+		newJob.setJobStatus(JobStatus.RUNNING);
+		entityManager.persist(newJob);
 
 		ProcessAction pa = new ProcessAction();
 		pa.setup(process.getResources().get(0), process);
@@ -87,9 +87,9 @@ public class ExecutionController {
 		ExecutionPlan exp = new ExecutionPlan();
 		exp.setup(eln, secureSession);
 
-		runExecutionPlan(exp, newResult);
+		runExecutionPlan(exp, newJob);
 
-		return newResult.getId();
+		return newJob.getId();
 	}
 
 	/**
@@ -104,14 +104,14 @@ public class ExecutionController {
 	 */
 	public Long runQuery(Query query, SecureSession secureSession)
 			throws PersistableException {
-		Result newResult = new Result();
-		newResult.setJobType("EXECUTION");
+		Job newJob = new Job();
+		newJob.setJobType("EXECUTION");
 		if(secureSession != null) {
-			newResult.setUser(secureSession.getUser());
+			newJob.setUser(secureSession.getUser());
 		}
 
-		newResult.setResultStatus(ResultStatus.RUNNING);
-		entityManager.persist(newResult);
+		newJob.setJobStatus(JobStatus.RUNNING);
+		entityManager.persist(newJob);
 		
 		QueryAction qa = new QueryAction();
 		edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource resource = (edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource) query.getResources().toArray()[0];
@@ -126,9 +126,9 @@ public class ExecutionController {
 		ExecutionPlan exp = new ExecutionPlan();
 		exp.setup(eln, secureSession);
 
-		runExecutionPlan(exp, newResult);
+		runExecutionPlan(exp, newJob);
 
-		return newResult.getId();
+		return newJob.getId();
 	}
 
 	/**
@@ -143,14 +143,14 @@ public class ExecutionController {
 	 */
 	public Long runJoin(Join join, SecureSession secureSession)
 			throws PersistableException {
-		Result newResult = new Result();
-		newResult.setJobType("EXECUTION");
+		Job newJob = new Job();
+		newJob.setJobType("EXECUTION");
 		if(secureSession != null) {
-			newResult.setUser(secureSession.getUser());
+			newJob.setUser(secureSession.getUser());
 		}
 		
-		newResult.setResultStatus(ResultStatus.RUNNING);
-		entityManager.persist(newResult);
+		newJob.setJobStatus(JobStatus.RUNNING);
+		entityManager.persist(newJob);
 		
 		JoinAction ja = new JoinAction();
 		ja.setup(join);
@@ -160,27 +160,27 @@ public class ExecutionController {
 
 		ExecutionPlan exp = new ExecutionPlan();
 		exp.setup(eln, secureSession);
-		runExecutionPlan(exp, newResult);
+		runExecutionPlan(exp, newJob);
 
-		return newResult.getId();
+		return newJob.getId();
 	}
 	
 	
 	public Long runExecutable(Executable executable, SecureSession secureSession) throws PersistableException {
-		Result newResult = new Result();
-		newResult.setJobType("EXECUTION");
+		Job newJoin = new Job();
+		newJoin.setJobType("EXECUTION");
 		if(secureSession != null) {
-			newResult.setUser(secureSession.getUser());
+			newJoin.setUser(secureSession.getUser());
 		}
 		
-		newResult.setResultStatus(ResultStatus.RUNNING);
-		entityManager.persist(newResult);
+		newJoin.setJobStatus(JobStatus.RUNNING);
+		entityManager.persist(newJoin);
 		
 		ExecutionPlan exp = new ExecutionPlan();
 		exp.setup(executable, secureSession);
-		runExecutionPlan(exp, newResult);
+		runExecutionPlan(exp, newJoin);
 
-		return newResult.getId();
+		return newJoin.getId();
 		
 	}
 
@@ -189,58 +189,58 @@ public class ExecutionController {
 	 * 
 	 * @param executionPlan
 	 *            Execution Plan
-	 * @param result
-	 *            Result
+	 * @param job
+	 *            Job
 	 * @throws PersistableException
 	 *             A persistable exception occurred
 	 */
 	@Asynchronous
 	public void runExecutionPlan(final ExecutionPlan executionPlan,
-			final Result result) throws PersistableException {
+			final Job job) throws PersistableException {
 
-		Callable<Result> runPlan = new Callable<Result>() {
+		Callable<Job> runPlan = new Callable<Job>() {
 			@Override
-			public Result call() {
+			public Job call() {
 				try {
-					result.setStartTime(new Date());
+					job.setStartTime(new Date());
 					executionPlan.run();
 					
-					Result finalResult = executionPlan.getResults();
+					Job finalResult = executionPlan.getResults();
 					
-					if ((finalResult.getResultStatus() == ResultStatus.COMPLETE) && (finalResult.getData() instanceof Persistable)) {
-						result.setDataType(finalResult.getDataType());
-						result.setData(finalResult.getData());
-						result.setResultSetLocation(finalResult.getResultSetLocation());
-						result.setMessage(finalResult.getMessage());
+					if ((finalResult.getJobStatus() == JobStatus.COMPLETE) && (finalResult.getData() instanceof Persistable)) {
+						job.setDataType(finalResult.getDataType());
+						job.setData(finalResult.getData());
+						job.setResultSetLocation(finalResult.getResultSetLocation());
+						job.setMessage(finalResult.getMessage());
 						
-						if(((Persistable) result.getData()).isPersisted()) {
-							((Persistable) result.getData()).merge();
+						if(((Persistable) job.getData()).isPersisted()) {
+							((Persistable) job.getData()).merge();
 						} else {
-							((Persistable) result.getData()).persist();
+							((Persistable) job.getData()).persist();
 						}
-						result.setResultStatus(ResultStatus.AVAILABLE);
+						job.setJobStatus(JobStatus.AVAILABLE);
 					} else {
-						result.setResultStatus(ResultStatus.ERROR);
-						result.setMessage(finalResult.getMessage());
+						job.setJobStatus(JobStatus.ERROR);
+						job.setMessage(finalResult.getMessage());
 					}
 					
-					result.setEndTime(new Date());
+					job.setEndTime(new Date());
 					UserTransaction userTransaction = lookup();
 					userTransaction.begin();
-					entityManager.merge(result);
+					entityManager.merge(job);
 					userTransaction.commit();
 				} catch (PersistableException e) {
-					result.setResultStatus(ResultStatus.ERROR);
-					result.setMessage(e.getMessage());
+					job.setJobStatus(JobStatus.ERROR);
+					job.setMessage(e.getMessage());
 					e.printStackTrace();
 				} catch (Exception e) {
 					e.printStackTrace();
 					log.info(e.getMessage());
-					result.setResultStatus(ResultStatus.ERROR);
+					job.setJobStatus(JobStatus.ERROR);
 				} finally {
 					
 				}
-				return result;
+				return job;
 			}
 		};
 

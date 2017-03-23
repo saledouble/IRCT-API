@@ -14,8 +14,8 @@ import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.process.IRCTProcess;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.implementation.ProcessResourceImplementationInterface;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultStatus;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobStatus;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.util.Utilities;
 
@@ -30,7 +30,7 @@ public class ProcessAction implements Action {
 	private IRCTProcess process ;
 	private Resource resource;
 	private ActionStatus status;
-	private Result result;
+	private Job job;
 	
 	private IRCTEventListener irctEventListener;
 	
@@ -47,7 +47,7 @@ public class ProcessAction implements Action {
 	}
 	
 	@Override
-	public void updateActionParams(Map<String, Result> updatedParams) {
+	public void updateActionParams(Map<String, Job> updatedParams) {
 		for(String key : updatedParams.keySet()) {
 			process.getStringValues().put(key, updatedParams.get(key).getId().toString());
 		}
@@ -60,49 +60,49 @@ public class ProcessAction implements Action {
 		try {
 			ProcessResourceImplementationInterface processInterface = (ProcessResourceImplementationInterface) resource.getImplementingInterface();
 			
-			result = ActionUtilities.createResult(processInterface.getProcessDataType(process));
+			job = ActionUtilities.createJob(processInterface.getProcessDataType(process));
 			if(session != null) {
-				result.setUser(session.getUser());
+				job.setUser(session.getUser());
 			}
 			
 			process.setObjectValues(ActionUtilities.convertResultSetFieldToObject(session.getUser(), process.getProcessType().getFields(), process.getStringValues()));
-			result = processInterface.runProcess(session, process, result);
+			job = processInterface.runProcess(session, process, job);
 			
-			ActionUtilities.mergeResult(result);
+			ActionUtilities.mergeResult(job);
 		} catch (Exception e) {
-			result.setMessage(e.getMessage());
+			job.setMessage(e.getMessage());
 			this.status = ActionStatus.ERROR;
 		}
 		irctEventListener.afterProcess(session, process);
 	}
 
 	@Override
-	public Result getResults(SecureSession session) throws ResourceInterfaceException {
-		this.result = ((ProcessResourceImplementationInterface)resource.getImplementingInterface()).getResults(session, result);
+	public Job getResults(SecureSession session) throws ResourceInterfaceException {
+		this.job = ((ProcessResourceImplementationInterface)resource.getImplementingInterface()).getResults(session, job);
 		try {
-			while((this.result.getResultStatus() != ResultStatus.ERROR) && (this.result.getResultStatus() != ResultStatus.COMPLETE)) {
+			while((this.job.getJobStatus() != JobStatus.ERROR) && (this.job.getJobStatus() != JobStatus.COMPLETE)) {
 				Thread.sleep(5000);
-				this.result = ((ProcessResourceImplementationInterface)resource.getImplementingInterface()).getResults(session, result);
+				this.job = ((ProcessResourceImplementationInterface)resource.getImplementingInterface()).getResults(session, job);
 			}
 			
-			result.getData().close();
+			job.getData().close();
 		} catch(Exception e) {
-			this.result.setResultStatus(ResultStatus.ERROR);
-			this.result.setMessage(e.getMessage());
+			this.job.setJobStatus(JobStatus.ERROR);
+			this.job.setMessage(e.getMessage());
 		}
 		
 		
-		result.setEndTime(new Date());
+		job.setEndTime(new Date());
 		//Save the query Action
 		try {
-			ActionUtilities.mergeResult(result);
+			ActionUtilities.mergeResult(job);
 			this.status = ActionStatus.COMPLETE;
 		} catch (NamingException e) {
-			result.setMessage(e.getMessage());
+			job.setMessage(e.getMessage());
 			this.status = ActionStatus.ERROR;
 		}
 		
-		return this.result;
+		return this.job;
 	}
 
 	/**

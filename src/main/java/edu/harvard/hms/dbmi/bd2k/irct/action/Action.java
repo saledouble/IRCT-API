@@ -6,7 +6,7 @@ package edu.harvard.hms.dbmi.bd2k.irct.action;
 import java.util.Map;
 
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 
@@ -32,7 +32,7 @@ public interface Action {
 	 * 
 	 * @param updatedParams Updated parameters of an action
 	 */
-	void updateActionParams(Map<String, Result> updatedParams);
+	void updateActionParams(Map<String, Job> updatedParams);
 
 	/**
 	 * Returns the results from an action
@@ -41,7 +41,7 @@ public interface Action {
 	 * @return The results of the action
 	 * @throws ResourceInterfaceException A resource interface exception occurred
 	 */
-	Result getResults(SecureSession secureSession) throws ResourceInterfaceException;
+	Job getResults(SecureSession secureSession) throws ResourceInterfaceException;
 	
 	/**
 	 * Returns the actions status

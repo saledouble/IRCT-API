@@ -13,8 +13,8 @@ import javax.naming.NamingException;
 import edu.harvard.hms.dbmi.bd2k.irct.controller.ResultController;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Field;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.PrimitiveDataType;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.PersistableException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.ResultSetException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.tabular.ResultSet;
@@ -29,31 +29,31 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.security.User;
 public class ActionUtilities {
 	
 	/**
-	 * Creates a result of a given different result data type
+	 * Creates a job with a given different result data type
 	 * 
 	 * @param resultDataType
-	 * @return The new result
+	 * @return The new job
 	 * @throws NamingException An exception occurred getting the result controller
 	 * @throws PersistableException An error occurred saving the result.
 	 */ 
-	static protected Result createResult(ResultDataType resultDataType) throws NamingException, PersistableException {
+	static protected Job createJob(JobDataType resultDataType) throws NamingException, PersistableException {
 		InitialContext ic = new InitialContext();
 		ResultController resultController = (ResultController) ic.lookup("java:global/IRCT-CL/ResultController");
-		Result result = resultController.createResult(resultDataType); 
-		result.setJobType("ACTION");
-		return result;
+		Job job = resultController.createResult(resultDataType); 
+		job.setJobType("ACTION");
+		return job;
 	}
 	
 	/**
 	 * Saves the results 
 	 * 
-	 * @param result Result to serve
+	 * @param job Job to serve
 	 * @throws NamingException An exception occurred getting the result controller
 	 */
-	static protected void mergeResult(Result result) throws NamingException {
+	static protected void mergeResult(Job job) throws NamingException {
 		InitialContext ic = new InitialContext();
 		ResultController resultController = (ResultController) ic.lookup("java:global/IRCT-CL/ResultController");
-		resultController.mergeResult(result);
+		resultController.mergeResult(job);
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public class ActionUtilities {
 		for(Field field : fields) {
 			if(field.getDataTypes().contains(PrimitiveDataType.RESULTSET)) {
 				
-				Result result = resultController.getResult(user, Long.valueOf(stringValues.get(field.getPath())));
+				Job result = resultController.getResult(user, Long.valueOf(stringValues.get(field.getPath())));
 				ResultSet rs = (ResultSet) result.getData();
 				rs.load(result.getResultSetLocation());
 				returns.put(field.getPath(), rs);

@@ -26,7 +26,7 @@ import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.join.IRCTJoin;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.DataConverterImplementation;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
 
 /**
  * Manages supported resources and join types for this instance of the IRCT
@@ -43,7 +43,7 @@ public class IRCTApplication {
 	
 	private Map<String, Resource> resources;
 	private Map<String, IRCTJoin> supportedJoinTypes;
-	private Map<ResultDataType, List<DataConverterImplementation>> resultDataConverters;
+	private Map<JobDataType, List<DataConverterImplementation>> resultDataConverters;
 
 	@Inject
 	Logger log;
@@ -117,7 +117,7 @@ public class IRCTApplication {
 	 * 
 	 */
 	private void loadDataConverters() {
-		this.resultDataConverters = new HashMap<ResultDataType, List<DataConverterImplementation>>();
+		this.resultDataConverters = new HashMap<JobDataType, List<DataConverterImplementation>>();
 		CriteriaBuilder cb = oem.getCriteriaBuilder();
 		CriteriaQuery<DataConverterImplementation> criteria = cb
 				.createQuery(DataConverterImplementation.class);
@@ -280,7 +280,7 @@ public class IRCTApplication {
 	/**
 	 * @return the resultDataConverters
 	 */
-	public Map<ResultDataType, List<DataConverterImplementation>> getResultDataConverters() {
+	public Map<JobDataType, List<DataConverterImplementation>> getResultDataConverters() {
 		return resultDataConverters;
 	}
 
@@ -289,7 +289,7 @@ public class IRCTApplication {
 	 *            the resultDataConverters to set
 	 */
 	public void setResultDataConverters(
-			Map<ResultDataType, List<DataConverterImplementation>> resultDataConverters) {
+			Map<JobDataType, List<DataConverterImplementation>> resultDataConverters) {
 		this.resultDataConverters = resultDataConverters;
 	}
 
@@ -302,7 +302,7 @@ public class IRCTApplication {
 	 *            Format
 	 * @return DataConverter
 	 */
-	public ResultDataConverter getResultDataConverter(ResultDataType dataType,
+	public ResultDataConverter getResultDataConverter(JobDataType dataType,
 			String format) {
 		List<DataConverterImplementation> dciList = this.resultDataConverters
 				.get(dataType);

@@ -4,7 +4,7 @@
 package edu.harvard.hms.dbmi.bd2k.irct.executable;
 
 
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.util.Utilities;
 import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEventListener;
@@ -21,7 +21,7 @@ import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 public class ExecutionPlan {
 	private ExecutableStatus status;
 	private Executable executable;
-	private Result results;
+	private Job results;
 	private SecureSession session;
 
 	private IRCTEventListener irctEventListener;
@@ -66,7 +66,7 @@ public class ExecutionPlan {
 	 * 
 	 * @return Results
 	 */
-	public Result getResults() {
+	public Job getResults() {
 		return this.results;
 	}
 

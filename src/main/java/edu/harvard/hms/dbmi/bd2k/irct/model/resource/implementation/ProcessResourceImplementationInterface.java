@@ -6,8 +6,8 @@ package edu.harvard.hms.dbmi.bd2k.irct.model.resource.implementation;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.process.IRCTProcess;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.ResourceState;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 
 /**
@@ -28,7 +28,7 @@ public interface ProcessResourceImplementationInterface extends ResourceImplemen
 	 * @return Results
 	 * @throws ResourceInterfaceException A resource exception occurred
 	 */
-	Result runProcess(SecureSession session, IRCTProcess process, Result result) throws ResourceInterfaceException;
+	Job runProcess(SecureSession session, IRCTProcess process, Job result) throws ResourceInterfaceException;
 	
 	/**
 	 * Returns the results of the process if they are available
@@ -38,7 +38,7 @@ public interface ProcessResourceImplementationInterface extends ResourceImplemen
 	 * @return Results
 	 * @throws ResourceInterfaceException A resource exception occurred
 	 */ 
-	Result getResults(SecureSession session, Result result) throws ResourceInterfaceException;
+	Job getResults(SecureSession session, Job result) throws ResourceInterfaceException;
 
 	/**
 	 * Returns the state of the resource
@@ -54,6 +54,6 @@ public interface ProcessResourceImplementationInterface extends ResourceImplemen
 	 * @return Result
 	 * 
 	 */
-	ResultDataType getProcessDataType(IRCTProcess process);
+	JobDataType getProcessDataType(IRCTProcess process);
 	
 }

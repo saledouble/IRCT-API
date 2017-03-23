@@ -21,9 +21,9 @@ import edu.harvard.hms.dbmi.bd2k.irct.dataconverter.ResultDataConverter;
 import edu.harvard.hms.dbmi.bd2k.irct.dataconverter.ResultDataStream;
 import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEventListener;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.DataConverterImplementation;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultStatus;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobStatus;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.PersistableException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.tabular.FileResultSet;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.User;
@@ -54,19 +54,19 @@ public class ResultController {
 	 *            User
 	 * @return List of Resutls
 	 */
-	public List<Result> getAvailableResults(User user) {
+	public List<Job> getAvailableResults(User user) {
 //		EntityManager entityManager = objectEntityManager.createEntityManager();
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-		CriteriaQuery<Result> criteria = cb.createQuery(Result.class);
-		Root<Result> result = criteria.from(Result.class);
+		CriteriaQuery<Job> criteria = cb.createQuery(Job.class);
+		Root<Job> result = criteria.from(Job.class);
 		criteria.select(result);
 
 		Predicate restrictions = cb.conjunction();
 		restrictions = cb.and(restrictions, cb.isNull(result.get("user")));
 		restrictions = cb.or(restrictions, cb.equal(result.get("user"), user));
 		restrictions = cb.and(restrictions,
-				cb.equal(result.get("resultStatus"), ResultStatus.AVAILABLE));
+				cb.equal(result.get("resultStatus"), JobStatus.AVAILABLE));
 		criteria.where(restrictions);
 
 		return entityManager.createQuery(criteria).getResultList();
@@ -81,12 +81,12 @@ public class ResultController {
 	 *            Result Id
 	 * @return Status of the result
 	 */
-	public ResultStatus getResultStatus(User user, Long resultId) {
-		List<Result> results = getResults(user, resultId);
+	public JobStatus getResultStatus(User user, Long resultId) {
+		List<Job> results = getResults(user, resultId);
 		if ((results == null) || (results.isEmpty())) {
 			return null;
 		}
-		return results.get(0).getResultStatus();
+		return results.get(0).getJobStatus();
 	}
 
 	/**
@@ -100,12 +100,12 @@ public class ResultController {
 	 * @return Available Formats
 	 */
 	public List<String> getAvailableFormats(User user, Long resultId) {
-		List<Result> results = getResults(user, resultId);
+		List<Job> results = getResults(user, resultId);
 
 		if (results == null || results.size() == 0) {
 			return null;
 		}
-		if(results.get(0).getResultStatus() != ResultStatus.AVAILABLE) {
+		if(results.get(0).getJobStatus() != JobStatus.AVAILABLE) {
 			return null;
 		}
 		
@@ -134,15 +134,15 @@ public class ResultController {
 	public ResultDataStream getResultDataStream(User user, Long resultId,
 			String format) {
 		ResultDataStream rds = new ResultDataStream();
-		List<Result> results = getResults(user, resultId);
+		List<Job> results = getResults(user, resultId);
 
 		if (results == null || results.size() == 0) {
 			rds.setMessage("Unable to find result");
 			return rds;
 		}
-		Result result = results.get(0);
+		Job result = results.get(0);
 		
-		if(result.getResultStatus() != ResultStatus.AVAILABLE) {
+		if(result.getJobStatus() != JobStatus.AVAILABLE) {
 			rds.setMessage("Result is not available");
 			return rds;
 		}
@@ -170,8 +170,8 @@ public class ResultController {
 	 *            Result Id
 	 * @return Result
 	 */
-	public Result getResult(User user, Long resultId) {
-		List<Result> results = getResults(user, resultId);
+	public Job getResult(User user, Long resultId) {
+		List<Job> results = getResults(user, resultId);
 
 		if ((results == null) || (results.isEmpty())) {
 			return null;
@@ -180,13 +180,13 @@ public class ResultController {
 		return results.get(0);
 	}
 
-	private List<Result> getResults(User user, Long resultId) {
+	private List<Job> getResults(User user, Long resultId) {
 		irctEventListener.beforeGetResult(user, resultId);
 		
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-		CriteriaQuery<Result> criteria = cb.createQuery(Result.class);
-		Root<Result> resultRoot = criteria.from(Result.class);
+		CriteriaQuery<Job> criteria = cb.createQuery(Job.class);
+		Root<Job> resultRoot = criteria.from(Job.class);
 		criteria.select(resultRoot);
 
 		Predicate restrictions = cb.conjunction();
@@ -197,7 +197,7 @@ public class ResultController {
 				cb.equal(resultRoot.get("id"), resultId));
 		criteria.where(restrictions);
 
-		List<Result> results = entityManager.createQuery(criteria).getResultList();
+		List<Job> results = entityManager.createQuery(criteria).getResultList();
 
 		if ((results == null) || (results.isEmpty())) {
 			return null;
@@ -217,27 +217,27 @@ public class ResultController {
 	 * @throws PersistableException
 	 *             An error occurred creating the Result
 	 */
-	public Result createResult(ResultDataType resultDataType)
+	public Job createResult(JobDataType resultDataType)
 			throws PersistableException {
-		Result result = new Result();
+		Job result = new Job();
 		entityManager.persist(result);
 		result.setDataType(resultDataType);
 		result.setStartTime(new Date());
-		if (resultDataType == ResultDataType.TABULAR) {
+		if (resultDataType == JobDataType.TABULAR) {
 			FileResultSet frs = new FileResultSet();
 			frs.persist(irctApp.getResultDataFolder()
 					+ "/" + result.getId());
 			result.setResultSetLocation(irctApp.getResultDataFolder()
 					+ "/" + result.getId());
 			result.setData(frs);
-		} else if (resultDataType == ResultDataType.JSON) {
+		} else if (resultDataType == JobDataType.JSON) {
 
 		} else {
-			result.setResultStatus(ResultStatus.ERROR);
+			result.setJobStatus(JobStatus.ERROR);
 			result.setMessage("Unknown Result Data Type");
 			return result;
 		}
-		result.setResultStatus(ResultStatus.CREATED);
+		result.setJobStatus(JobStatus.CREATED);
 		entityManager.merge(result);
 		return result;
 	}
@@ -248,7 +248,7 @@ public class ResultController {
 	 * @param result
 	 *            Result
 	 */
-	public void mergeResult(Result result) {
+	public void mergeResult(Job result) {
 		irctEventListener.beforeSaveResult(result);
 		entityManager.merge(result);
 		irctEventListener.afterSaveResult(result);

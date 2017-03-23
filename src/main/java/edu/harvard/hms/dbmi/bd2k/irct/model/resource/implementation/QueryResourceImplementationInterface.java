@@ -6,8 +6,8 @@ package edu.harvard.hms.dbmi.bd2k.irct.model.resource.implementation;
 
 import edu.harvard.hms.dbmi.bd2k.irct.model.query.Query;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.ResourceState;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 
@@ -29,7 +29,7 @@ public interface QueryResourceImplementationInterface extends
 	 * @return The id of the query that is running
 	 * @throws ResourceInterfaceException A resource exception occurred
 	 */
-	Result runQuery(SecureSession session, Query qep, Result result) throws ResourceInterfaceException;
+	Job runQuery(SecureSession session, Query qep, Job result) throws ResourceInterfaceException;
 
 	/**
 	 * Returns the results of the query if they are available
@@ -39,7 +39,7 @@ public interface QueryResourceImplementationInterface extends
 	 * @return Results
 	 * @throws ResourceInterfaceException A resource exception occurred
 	 */
-	Result getResults(SecureSession session, Result result) throws ResourceInterfaceException;
+	Job getResults(SecureSession session, Job result) throws ResourceInterfaceException;
 
 	/**
 	 * Returns the state of the resource
@@ -53,5 +53,5 @@ public interface QueryResourceImplementationInterface extends
 	 * @param query Query to run
 	 * @return Result data type
 	 */
-	ResultDataType getQueryDataType(Query query);
+	JobDataType getQueryDataType(Query query);
 }

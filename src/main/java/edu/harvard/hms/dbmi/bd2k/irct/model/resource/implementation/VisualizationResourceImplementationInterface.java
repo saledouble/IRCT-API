@@ -4,7 +4,7 @@
 package edu.harvard.hms.dbmi.bd2k.irct.model.resource.implementation;
 
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.ResourceState;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
 
 /**
  * Provides an implementation that describes the API for any resource that has
@@ -28,5 +28,5 @@ public interface VisualizationResourceImplementationInterface extends
 	 * 
 	 * @return Result data type
 	 */
-	ResultDataType getVisualizationDataType();
+	JobDataType getVisualizationDataType();
 }

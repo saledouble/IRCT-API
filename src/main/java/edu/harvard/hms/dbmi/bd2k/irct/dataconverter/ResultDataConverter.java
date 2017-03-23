@@ -5,8 +5,8 @@ package edu.harvard.hms.dbmi.bd2k.irct.dataconverter;
 
 import javax.ws.rs.core.StreamingOutput;
 
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
 
 /**
  * A base interface that is implemented to create a set of data converters for output from the IRCT format
@@ -21,7 +21,7 @@ public interface ResultDataConverter {
 	 * 
 	 * @return Result Data Type
 	 */
-	public ResultDataType getResultDataType();
+	public JobDataType getResultDataType();
 	
 	/**
 	 * Returns the name of the converter
@@ -43,7 +43,7 @@ public interface ResultDataConverter {
 	 * @param result Result to stream out
 	 * @return Output Stream
 	 */
-	public StreamingOutput createStream(final Result result);
+	public StreamingOutput createStream(final Job result);
 	
 	/**
 	 * Returns the file extension that is typically associated with a file of that type

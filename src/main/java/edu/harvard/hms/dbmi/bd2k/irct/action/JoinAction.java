@@ -11,8 +11,8 @@ import javax.naming.NamingException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.join.Join;
 import edu.harvard.hms.dbmi.bd2k.irct.model.join.JoinImplementation;
 import edu.harvard.hms.dbmi.bd2k.irct.model.resource.Resource;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultStatus;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobStatus;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.PersistableException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.ResultSetException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
@@ -31,7 +31,7 @@ public class JoinAction implements Action {
 	private Join join;
 	private ActionStatus status;
 	private Resource resource;
-	private Result result;
+	private Job job;
 	
 	private IRCTEventListener irctEventListener;
 
@@ -48,7 +48,7 @@ public class JoinAction implements Action {
 	}
 	
 	@Override
-	public void updateActionParams(Map<String, Result> updatedParams) {
+	public void updateActionParams(Map<String, Job> updatedParams) {
 		for(String key : this.join.getStringValues().keySet()) {
 			String value = this.join.getStringValues().get(key);
 			if(updatedParams.containsKey(value)) {
@@ -65,18 +65,18 @@ public class JoinAction implements Action {
 		try {
 			JoinImplementation joinImplementation = (JoinImplementation) join.getJoinImplementation();
 			joinImplementation.setup(new HashMap<String, Object>());
-			result = ActionUtilities.createResult(joinImplementation.getJoinDataType());
+			job = ActionUtilities.createJob(joinImplementation.getJoinDataType());
 			if(session != null) {
-				result.setUser(session.getUser());
+				job.setUser(session.getUser());
 			}
 			
 			join.getObjectValues().putAll(ActionUtilities.convertResultSetFieldToObject(session.getUser(), join.getJoinType().getFields(), join.getStringValues()));
 			
-			result = joinImplementation.run(session, join, result);
+			job = joinImplementation.run(session, join, job);
 			this.status = ActionStatus.COMPLETE;
-			ActionUtilities.mergeResult(result);
+			ActionUtilities.mergeResult(job);
 		} catch (PersistableException | NamingException | ResultSetException | JoinActionSetupException e) {
-			result.setMessage(e.getMessage());
+			job.setMessage(e.getMessage());
 			this.status = ActionStatus.ERROR;
 		}
 		
@@ -85,18 +85,18 @@ public class JoinAction implements Action {
 	}
 
 	@Override
-	public Result getResults(SecureSession session) throws ResourceInterfaceException {
-		if(this.result.getResultStatus() != ResultStatus.ERROR && this.result.getResultStatus() != ResultStatus.COMPLETE) {
-			this.result = this.join.getJoinImplementation().getResults(this.result);
+	public Job getResults(SecureSession session) throws ResourceInterfaceException {
+		if(this.job.getJobStatus() != JobStatus.ERROR && this.job.getJobStatus() != JobStatus.COMPLETE) {
+			this.job = this.join.getJoinImplementation().getResults(this.job);
 		}
 		try {
-			ActionUtilities.mergeResult(result);
+			ActionUtilities.mergeResult(job);
 			this.status = ActionStatus.COMPLETE;
 		} catch (NamingException e) {
-			result.setMessage(e.getMessage());
+			job.setMessage(e.getMessage());
 			this.status = ActionStatus.ERROR;
 		}
-		return this.result;
+		return this.job;
 	}
 
 	@Override

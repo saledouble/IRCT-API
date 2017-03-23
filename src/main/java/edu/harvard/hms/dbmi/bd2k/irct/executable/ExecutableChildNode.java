@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 import edu.harvard.hms.dbmi.bd2k.irct.action.Action;
 import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEventListener;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultStatus;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobStatus;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.util.Utilities;
 
@@ -36,14 +36,14 @@ public class ExecutableChildNode implements Executable {
 	private Action action;
 	private Map<String, Executable> children;
 	private Executable parent;
-	private Map<String, Result> childrenResults;
+	private Map<String, Job> childrenResults;
 	private ExecutableStatus state;
 
 	private IRCTEventListener irctEventListener;
 
 	public ExecutableChildNode() {
 		this.setChildren(new HashMap<String, Executable>());
-		this.childrenResults = new HashMap<String, Result>();
+		this.childrenResults = new HashMap<String, Job>();
 	}
 
 	@Override
@@ -116,7 +116,7 @@ public class ExecutableChildNode implements Executable {
 	}
 
 	@Override
-	public Result getResults() throws ResourceInterfaceException {
+	public Job getResults() throws ResourceInterfaceException {
 		return this.action.getResults(this.session);
 	}
 
@@ -212,14 +212,14 @@ class ExecutorCallable implements Callable<ExecutorIdentifier> {
 
 	@Override
 	public ExecutorIdentifier call() throws Exception {
-		Result result = new Result();
+		Job result = new Job();
 
 		executable.setup(this.session);
 		try {
 			executable.run();
 			result = executable.getResults();
 		} catch (ResourceInterfaceException e) {
-			result.setResultStatus(ResultStatus.ERROR);
+			result.setJobStatus(JobStatus.ERROR);
 			result.setMessage(e.getMessage());
 		}
 
@@ -229,9 +229,9 @@ class ExecutorCallable implements Callable<ExecutorIdentifier> {
 
 class ExecutorIdentifier {
 	private String id;
-	private Result result;
+	private Job result;
 
-	public ExecutorIdentifier(String id, Result result) {
+	public ExecutorIdentifier(String id, Job result) {
 		this.id = id;
 		this.result = result;
 	}
@@ -240,7 +240,7 @@ class ExecutorIdentifier {
 		return this.id;
 	}
 
-	public Result getResult() {
+	public Job getResult() {
 		return this.result;
 	}
 }

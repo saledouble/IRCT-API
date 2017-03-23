@@ -32,7 +32,7 @@ public class DataConverterImplementation implements Serializable {
 	private long id;
 
 	@Enumerated(EnumType.STRING)
-	private ResultDataType resultDataType;
+	private JobDataType resultDataType;
 
 	private String format;
 
@@ -63,7 +63,7 @@ public class DataConverterImplementation implements Serializable {
 	 * 
 	 * @return the resultDataType
 	 */
-	public ResultDataType getResultDataType() {
+	public JobDataType getResultDataType() {
 		return resultDataType;
 	}
 
@@ -73,7 +73,7 @@ public class DataConverterImplementation implements Serializable {
 	 * @param resultDataType
 	 *            the resultDataType to set
 	 */
-	public void setResultDataType(ResultDataType resultDataType) {
+	public void setResultDataType(JobDataType resultDataType) {
 		this.resultDataType = resultDataType;
 	}
 

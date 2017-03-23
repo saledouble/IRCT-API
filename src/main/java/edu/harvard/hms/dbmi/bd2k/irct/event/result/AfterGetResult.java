@@ -4,7 +4,7 @@
 package edu.harvard.hms.dbmi.bd2k.irct.event.result;
 
 import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEvent;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 
 /**
  * An event listener that is run after a result is retrieved
@@ -19,5 +19,5 @@ public interface AfterGetResult extends IRCTEvent {
 	 * 
 	 * @param result Result
 	 */
-	public void fire(Result result);
+	public void fire(Job result);
 }

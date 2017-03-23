@@ -35,7 +35,7 @@ import edu.harvard.hms.dbmi.bd2k.irct.util.converter.DataConverter;
  *
  */
 @Entity
-public class Result {
+public class Job {
 	@Id
 	@GeneratedValue(generator = "resultSequencer")
 	@SequenceGenerator(name = "resultSequencer", sequenceName = "resSeq")
@@ -55,10 +55,10 @@ public class Result {
 	private Date endTime;
 
 	@Enumerated(EnumType.STRING)
-	private ResultStatus resultStatus;
+	private JobStatus jobStatus;
 
 	@Enumerated(EnumType.STRING)
-	private ResultDataType dataType;
+	private JobDataType dataType;
 
 	private String resourceActionId;
 
@@ -95,7 +95,7 @@ public class Result {
 		depth--;
 		JsonObjectBuilder jsonBuilder = Json.createObjectBuilder();
 		jsonBuilder.add("id", this.id);
-		jsonBuilder.add("status", this.resultStatus.toString());
+		jsonBuilder.add("status", this.jobStatus.toString());
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		jsonBuilder.add("runTime", formatter.format(new Date()));
 
@@ -206,8 +206,8 @@ public class Result {
 	 * 
 	 * @return Result status
 	 */
-	public ResultStatus getResultStatus() {
-		return resultStatus;
+	public JobStatus getJobStatus() {
+		return jobStatus;
 	}
 
 	/**
@@ -216,8 +216,8 @@ public class Result {
 	 * @param resultStatus
 	 *            Result status
 	 */
-	public void setResultStatus(ResultStatus resultStatus) {
-		this.resultStatus = resultStatus;
+	public void setJobStatus(JobStatus jobStatus) {
+		this.jobStatus = jobStatus;
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class Result {
 	 * 
 	 * @return Data Type
 	 */
-	public ResultDataType getDataType() {
+	public JobDataType getDataType() {
 		return dataType;
 	}
 
@@ -234,7 +234,7 @@ public class Result {
 	 * 
 	 * @param dataType Data Type
 	 */
-	public void setDataType(ResultDataType dataType) {
+	public void setDataType(JobDataType dataType) {
 		this.dataType = dataType;
 	}
 

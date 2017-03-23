@@ -6,8 +6,8 @@ package edu.harvard.hms.dbmi.bd2k.irct.model.join;
 import java.util.Map;
 
 import edu.harvard.hms.dbmi.bd2k.irct.exception.JoinActionSetupException;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.ResultDataType;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.JobDataType;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.PersistableException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.exception.ResultSetException;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
@@ -30,14 +30,14 @@ public interface JoinImplementation {
 	 */
 	void setup(Map<String, Object> parameters) throws JoinActionSetupException;
 
-	Result run(SecureSession session, Join join, Result result) throws ResultSetException, PersistableException;
+	Job run(SecureSession session, Join join, Job result) throws ResultSetException, PersistableException;
 	
-	Result getResults(Result result);
+	Job getResults(Job result);
 	
 	/**
 	 * Returns the result data type
 	 * 
 	 * @return Result data type
 	 */
-	ResultDataType getJoinDataType();
+	JobDataType getJoinDataType();
 }

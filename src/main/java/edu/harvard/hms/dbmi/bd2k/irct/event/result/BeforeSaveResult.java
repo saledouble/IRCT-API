@@ -4,7 +4,7 @@
 package edu.harvard.hms.dbmi.bd2k.irct.event.result;
 
 import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEvent;
-import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
+import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 
 /**
  * An event listener that is run before a result is retrieved
@@ -14,6 +14,6 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.result.Result;
  */
 public interface BeforeSaveResult extends IRCTEvent {
 
-	void fire(Result result);
+	void fire(Job result);
 
 }
