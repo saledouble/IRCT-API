@@ -6,7 +6,6 @@ package edu.harvard.hms.dbmi.bd2k.irct.executable;
 import edu.harvard.hms.dbmi.bd2k.irct.model.result.Job;
 import edu.harvard.hms.dbmi.bd2k.irct.model.security.SecureSession;
 import edu.harvard.hms.dbmi.bd2k.irct.action.Action;
-import edu.harvard.hms.dbmi.bd2k.irct.event.IRCTEventListener;
 import edu.harvard.hms.dbmi.bd2k.irct.exception.ResourceInterfaceException;
 
 /**
