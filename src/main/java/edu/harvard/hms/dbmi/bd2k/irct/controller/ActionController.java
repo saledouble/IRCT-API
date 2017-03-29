@@ -18,7 +18,6 @@ import edu.harvard.hms.dbmi.bd2k.irct.model.join.IRCTJoin;
 import edu.harvard.hms.dbmi.bd2k.irct.model.join.Join;
 import edu.harvard.hms.dbmi.bd2k.irct.model.ontology.DataType;
 import edu.harvard.hms.dbmi.bd2k.irct.model.ontology.Entity;
-import edu.harvard.hms.dbmi.bd2k.irct.model.process.IRCTProcess;
 import edu.harvard.hms.dbmi.bd2k.irct.model.query.ClauseAbstract;
 import edu.harvard.hms.dbmi.bd2k.irct.model.query.JoinClause;
 import edu.harvard.hms.dbmi.bd2k.irct.model.query.JoinType;
@@ -49,32 +48,50 @@ public class ActionController {
 	private ResourceController rc;
 
 	private Map<Resource, Executable> orphans;
-	
+
 	private Map<Resource, Executable> missing;
 
 	private ExecutableChildNode rootPosition;
 
-	public void createAction() {
+	/**
+	 * Sets up the controller to create a new execution tree. This must be run
+	 * before any other actions are added.
+	 * 
+	 * @return Root Executable Child Node
+	 */
+	public ExecutableChildNode createAction() {
 		this.orphans = new HashMap<Resource, Executable>();
 		this.missing = new HashMap<Resource, Executable>();
-		this.rootPosition = null;
+		this.rootPosition = new ExecutableChildNode();
+		return this.rootPosition;
 	}
 
-	public void addQuery(Query query) {
-
-	}
-
-	public void addSelectClause(Entity field, String alias,
-			SelectOperationType operation, Map<String, String> fields,
-			Map<String, Object> objectFields) throws QueryException,
-			ActionException {
-		addSelectClause(field, alias, operation, fields, objectFields,
-				rootPosition);
-	}
-
-	public void addSelectClause(Entity field, String alias,
-			SelectOperationType operation, Map<String, String> fields,
-			Map<String, Object> objectFields, ExecutableChildNode basePosition)
+	/**
+	 * Adds a select clause to the base position, or child executable position
+	 * in the execution tree.
+	 * 
+	 * @param basePosition
+	 *            Position in execution tree that is current
+	 * @param field
+	 *            Field to be selected upon
+	 * @param alias
+	 *            Alias of that field, if applicable
+	 * @param operation
+	 *            Operation to be run if applicable
+	 * @param fields
+	 *            String representation of the fields for the select operation
+	 *            in key : value form
+	 * @param objectFields
+	 *            Objects of the fields for the select operation in key : value
+	 *            form
+	 * @throws QueryException
+	 *             An exception occurred adding the select to the query
+	 * @throws ActionException
+	 *             An exception occurred creating the action
+	 */
+	public void addSelectClause(ExecutableChildNode basePosition, Entity field,
+			String alias, SelectOperationType operation,
+			Map<String, String> fields, Map<String, Object> objectFields)
 			throws QueryException, ActionException {
 
 		Resource resource = getResource(field.getPui());
@@ -91,17 +108,31 @@ public class ActionController {
 		addClause(resource, selectClause, basePosition);
 	}
 
-	public void addWhereClause(Entity field, PredicateType predicate,
-			LogicalOperator logicalOperator, Map<String, String> fields,
-			Map<String, Object> objectFields) throws ActionException,
-			QueryException {
-		addWhereClause(field, predicate, logicalOperator, fields, objectFields,
-				rootPosition);
-	}
-
-	public void addWhereClause(Entity field, PredicateType predicate,
-			LogicalOperator logicalOperator, Map<String, String> fields,
-			Map<String, Object> objectFields, ExecutableChildNode basePosition)
+	/**
+	 * Adds a where clause to the base position, or child executable position
+	 * relative to the base position in the execution tree.
+	 * 
+	 * @param basePosition
+	 *            Position in execution tree that is current
+	 * @param field
+	 *            Field for the predicate to be run against
+	 * @param predicate
+	 *            Predicate for the where clause
+	 * @param logicalOperator
+	 *            Logical operator for multiple clauses
+	 * @param fields
+	 *            A string representation of the fields for the where clause in
+	 *            key : value form
+	 * @param objectFields
+	 *            Objects of the fields for the where clause in key : value form
+	 * @throws ActionException
+	 *             An exception occurred creating the action
+	 * @throws QueryException
+	 *             An exception occurred adding the where clause to the query
+	 */
+	public void addWhereClause(ExecutableChildNode basePosition, Entity field,
+			PredicateType predicate, LogicalOperator logicalOperator,
+			Map<String, String> fields, Map<String, Object> objectFields)
 			throws ActionException, QueryException {
 		Resource resource = getResource(field.getPui());
 		// Is valid where clause
@@ -119,15 +150,29 @@ public class ActionController {
 
 	}
 
-	public void addSortClause(Entity field, SortOperationType operation,
-			Map<String, String> fields, Map<String, Object> objectFields)
-			throws ActionException, QueryException {
-		addSortClause(field, operation, fields, objectFields, rootPosition);
-	}
-
-	public void addSortClause(Entity field, SortOperationType operation,
-			Map<String, String> fields, Map<String, Object> objectFields,
-			ExecutableChildNode basePosition) throws ActionException,
+	/**
+	 * Adds a sort clause to the base position, or child executable position
+	 * relative to the base position in the execution tree.
+	 * 
+	 * @param basePosition
+	 *            Position in execution tree that is current
+	 * @param field
+	 *            Field for the sort to occur on
+	 * @param operation
+	 *            Sort Operation
+	 * @param fields
+	 *            A string representation of the fields for the sort operation
+	 *            in key : value form
+	 * @param objectFields
+	 *            Objects for the sort operation in key : value form
+	 * @throws ActionException
+	 *             An exception occurred creating the action
+	 * @throws QueryException
+	 *             An exception occurred adding the sort clause to the query
+	 */
+	public void addSortClause(ExecutableChildNode basePosition, Entity field,
+			SortOperationType operation, Map<String, String> fields,
+			Map<String, Object> objectFields) throws ActionException,
 			QueryException {
 
 		Resource resource = getResource(field.getPui());
@@ -143,17 +188,28 @@ public class ActionController {
 		addClause(resource, sortClause, basePosition);
 	}
 
-	
-
-	public void addJoinClause(Entity field, JoinType joinType,
-			Map<String, String> fields, Map<String, Object> objectFields)
-			throws ActionException, QueryException {
-		addJoinClause(field, joinType, fields, objectFields, rootPosition);
-	}
-
-	public void addJoinClause(Entity field, JoinType joinType,
-			Map<String, String> fields, Map<String, Object> objectFields,
-			ExecutableChildNode basePosition) throws ActionException,
+	/**
+	 * Adds a join clause to the base position, or child executable position
+	 * relative to the base position in the execution tree.
+	 * 
+	 * @param basePosition
+	 *            Position in execution tree that is current
+	 * @param field
+	 *            Field for the join to occur on
+	 * @param joinType
+	 *            Type of join to be performed
+	 * @param fields
+	 *            A string representation of the fields for the join operation
+	 * @param objectFields
+	 *            A map of objects for the join operation
+	 * @throws ActionException
+	 *             An exception occurred creating the action
+	 * @throws QueryException
+	 *             An exception occurred adding the join clause to the query
+	 */
+	public void addJoinClause(ExecutableChildNode basePosition, Entity field,
+			JoinType joinType, Map<String, String> fields,
+			Map<String, Object> objectFields) throws ActionException,
 			QueryException {
 
 		Resource resource = getResource(field.getPui());
@@ -167,43 +223,74 @@ public class ActionController {
 
 		addClause(resource, joinClause, basePosition);
 	}
-	
-	public void addJoinClause(Entity entity, IRCTJoin irctJoin,
-			Map<String, String> fields, Map<String, Object> objectFields) throws QueryException, ActionException {
-		addJoinClause(entity, irctJoin, fields, objectFields, rootPosition);
-	}
 
-	
-	public void addJoinClause(Entity entity, IRCTJoin irctJoin,
-			Map<String, String> fields, Map<String, Object> objectFields, ExecutableChildNode basePosition) throws QueryException, ActionException {
+	/**
+	 * Creates an IRCT join that will combine the results of two actions
+	 * relative to the base position
+	 * 
+	 * @param basePosition
+	 *            Position in the execution tree that is current
+	 * @param irctJoin
+	 *            IRCT Join to be performed
+	 * @param fields
+	 *            String representation of the fields for the join operation
+	 * @param objectFields
+	 *            A map of objects for performing the join operation
+	 * @throws ActionException
+	 *             An exception occurred adding the IRCT join
+	 */
+	public void addJoinClause(ExecutableChildNode basePosition,
+			IRCTJoin irctJoin, Map<String, String> fields,
+			Map<String, Object> objectFields) throws ActionException {
 		Join join = new Join();
-		
+
 		join.setJoinImplementation(irctJoin.getJoinImplementation());
 		join.setJoinType(irctJoin);
 		join.setStringValues(fields);
 		join.setObjectValues(objectFields);
-		
+
 		addJoin(join, rootPosition);
 	}
-	
-	public void addProcess(IRCTProcess process) {
-	}
 
-
+	/**
+	 * Validates the execution tree to ensure that no orphan executable remain,
+	 * and that all expected actions are accounted for
+	 * 
+	 * @throws ActionException
+	 *             An exception occurred validating the action
+	 */
 	public void validateAction() throws ActionException {
-		if(!this.orphans.isEmpty()) {
-			throw new ActionException("Resource " + this.orphans.keySet().toArray(new Resource[0])[0].getName() + " is not referenced");
+		if (!this.orphans.isEmpty()) {
+			throw new ActionException(
+					"Resource "
+							+ this.orphans.keySet().toArray(new Resource[0])[0]
+									.getName() + " is not referenced");
 		}
-		if(!this.missing.isEmpty()) {
-			throw new ActionException("Cannot find expected resource " + this.missing.keySet().toArray(new Resource[0])[0].getName());
+		if (!this.missing.isEmpty()) {
+			throw new ActionException(
+					"Cannot find expected resource "
+							+ this.missing.keySet().toArray(new Resource[0])[0]
+									.getName());
 		}
 	}
-	
+
+	/**
+	 * Validates the executable and returns the root position in the executable
+	 * tree
+	 * 
+	 * @return Root Executable
+	 * @throws ActionException
+	 *             An exception occurred validating the execution tree
+	 */
 	public ExecutableChildNode getRootExecutionNode() throws ActionException {
 		validateAction();
 		return this.rootPosition;
 	}
 
+	/**
+	 * Deletes the current action
+	 * 
+	 */
 	public void deleteAction() {
 		this.orphans = null;
 		this.rootPosition = null;
@@ -215,11 +302,10 @@ public class ActionController {
 				(ExecutableChildNode) baseExecutable);
 
 		// No executable
-		if (workingExecutable == null) {
+		if (workingExecutable.getAction() == null) {
 			Query query = new Query();
 			QueryAction queryAction = new QueryAction();
 			queryAction.setup(resource, query);
-			workingExecutable = new ExecutableChildNode();
 			workingExecutable.setAction(queryAction);
 		}
 
@@ -228,52 +314,57 @@ public class ActionController {
 
 		addExecutable(workingExecutable, baseExecutable, resource);
 	}
-	
-	private void addJoin(Join join, ExecutableChildNode baseExecutable) throws ActionException {
+
+	private void addJoin(Join join, ExecutableChildNode baseExecutable)
+			throws ActionException {
 		JoinAction joinAction = new JoinAction();
 		joinAction.setup(join);
-		
-		ExecutableChildNode joinExecutable  = new ExecutableChildNode();
+
+		ExecutableChildNode joinExecutable = new ExecutableChildNode();
 		joinExecutable.setAction(joinAction);
-		
+
 		addJoinExecutable(joinExecutable, baseExecutable, join, "Left");
 		addJoinExecutable(joinExecutable, baseExecutable, join, "Right");
-		
+
 	}
-	
-	private void addJoinExecutable(ExecutableChildNode joinExecutable, ExecutableChildNode baseExecutable, Join join, String field) throws ActionException {
+
+	private void addJoinExecutable(ExecutableChildNode joinExecutable,
+			ExecutableChildNode baseExecutable, Join join, String field)
+			throws ActionException {
 		String pui = join.getStringValues().remove(field);
 		Resource resource = getResource(pui);
-		
+
 		join.getStringValues().put(field + "ResultSet", resource.getName());
-		join.getStringValues().put(field + "Column", pui.replaceAll("/" + resource.getName() + "/", ""));
-		
+		join.getStringValues().put(field + "Column",
+				pui.replaceAll("/" + resource.getName() + "/", ""));
+
 		SelectClause selectClause = new SelectClause();
 		selectClause.setParameters(new Entity(pui));
-		
-		if(baseExecutable.getAction().getResource() == resource) {
-			
-			if(baseExecutable.getAction() instanceof QueryAction) {
-				((QueryAction) baseExecutable.getAction()).getQuery().addClause(selectClause);
+
+		if (baseExecutable.getAction().getResource() == resource) {
+
+			if (baseExecutable.getAction() instanceof QueryAction) {
+				((QueryAction) baseExecutable.getAction()).getQuery()
+						.addClause(selectClause);
 			}
-			
+
 			joinExecutable.addChild(resource.getName(), baseExecutable);
-			
-			if(baseExecutable == rootPosition) {
+
+			if (baseExecutable == rootPosition) {
 				rootPosition = joinExecutable;
 			}
-		} else if(orphans.containsKey(resource)){
+		} else if (orphans.containsKey(resource)) {
 			Executable orphan = orphans.remove(resource);
-			
-			if(orphan.getAction() instanceof QueryAction) {
-				((QueryAction) orphan.getAction()).getQuery().addClause(selectClause);
+
+			if (orphan.getAction() instanceof QueryAction) {
+				((QueryAction) orphan.getAction()).getQuery().addClause(
+						selectClause);
 			}
-			
+
 			joinExecutable.addChild(resource.getName(), orphan);
 		}
-		
+
 	}
-	
 
 	private void addExecutable(ExecutableChildNode workingExecutable,
 			ExecutableChildNode baseExecutable, Resource resource) {
@@ -281,6 +372,8 @@ public class ActionController {
 		if (rootPosition == null) {
 			// If first pass then add it as the root node
 			rootPosition = workingExecutable;
+		} else if (baseExecutable == null) {
+			orphans.put(resource, workingExecutable);
 		} else if (baseExecutable != workingExecutable
 				&& !baseExecutable.getChildren().containsKey(resource)
 				&& !orphans.containsKey(resource)) {
@@ -291,9 +384,9 @@ public class ActionController {
 
 	private ExecutableChildNode getExecutable(Resource resource,
 			ExecutableChildNode position) {
-		ExecutableChildNode returns = null;
-		if (position == null) {
-			return null;
+		ExecutableChildNode returns = new ExecutableChildNode();
+		if (position.getAction() == null) {
+			return position;
 		}
 
 		if (position.getAction().getResource() == resource) {
