@@ -70,7 +70,7 @@ public class SecurityController {
 			entityManager.merge(ss);
 		}
 
-		log.info("Created key for " + user.getName());
+		log.finest("Created key for " + user.getName());
 
 		return key;
 	}
@@ -109,7 +109,7 @@ public class SecurityController {
 
 		SecureSession ss = ssl.get(0);
 
-		log.info("Found valid key for " + ss.getUser().getName());
+		log.finest("Found valid key for " + ss.getUser().getName());
 		return ss;
 	}
 
