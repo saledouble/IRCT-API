@@ -139,7 +139,7 @@ public class ResultController {
 	public ResultDataStream getResultDataStream(User user, Long resultId,
 			String format) {
 		
-		logger.log(Level.FINE, "getResultDataStream() user:"+user.getName()+" resultId:"+resultId+" format:"+(format==null?"NULL":format));
+		logger.log(Level.FINEST, "getResultDataStream() user:"+user.getName()+" resultId:"+resultId+" format:"+(format==null?"NULL":format));
 		ResultDataStream rds = new ResultDataStream();
 		List<Result> results = getResults(user, resultId);
 
@@ -147,11 +147,11 @@ public class ResultController {
 			rds.setMessage("Unable to find result");
 			return rds;
 		} else {
-			logger.log(Level.FINE, "getResultDataStream() there are ```"+results.size()+"``` results found.");
+			logger.log(Level.FINEST, "getResultDataStream() there are ```"+results.size()+"``` results found.");
 		}
 		Result result = results.get(0);
 		
-		logger.log(Level.FINE, "getResultDataStream() The first result status is "+result.getResultStatus().name());
+		logger.log(Level.FINEST, "getResultDataStream() The first result status is "+result.getResultStatus().name());
 		if(result.getResultStatus() != ResultStatus.AVAILABLE) {
 			rds.setMessage("Result is not available");
 			return rds;
@@ -160,7 +160,7 @@ public class ResultController {
 		ResultDataConverter rdc = irctApp.getResultDataConverter(
 				result.getDataType(), format);
 		
-		logger.log(Level.FINE, "getResultDataStream() ResultDataConverter has been retrieved");
+		logger.log(Level.FINEST, "getResultDataStream() ResultDataConverter has been retrieved");
 		if (rdc == null) {
 			rds.setMessage("Unable to find format");
 			return rds;
@@ -231,7 +231,7 @@ public class ResultController {
 	 */
 	public Result createResult(ResultDataType resultDataType)
 			throws PersistableException {
-		logger.log(Level.FINE, "createResult() "+resultDataType.toString());
+		logger.log(Level.FINEST, "createResult() "+resultDataType.toString());
 		
 		Result result = new Result();
 		entityManager.persist(result);
@@ -247,7 +247,7 @@ public class ResultController {
 					+ "/" + result.getId());
 			result.setData(frs);
 		} else if (resultDataType == ResultDataType.JSON) {
-			logger.log(Level.FINE, "createResult() JSON DataType is NOT persisted!!!");
+			logger.log(Level.FINEST, "createResult() JSON DataType is NOT persisted!!!");
 		} else {
 			result.setResultStatus(ResultStatus.ERROR);
 			result.setMessage("Unknown Result Data Type");

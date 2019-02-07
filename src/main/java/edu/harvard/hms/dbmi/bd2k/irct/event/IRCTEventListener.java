@@ -65,21 +65,21 @@ public class IRCTEventListener {
 	 * @param eci Event Implementation
 	 */
 	public void registerListener(EventConverterImplementation eci) {
-		logger.log(Level.FINE, "registerListener() Starting eci:"+(eci==null?"null":eci.getName()));
+		logger.log(Level.FINER, "registerListener() Starting eci:"+(eci==null?"null":eci.getName()));
 		IRCTEvent irctEvent = eci.getEventListener();
 		
 		String eventType = irctEvent.getClass().getInterfaces()[0]
 				.getSimpleName();
-		logger.log(Level.FINE, "registerListener() eventType:"+(eventType==null?"null":eventType));
+		logger.log(Level.FINER, "registerListener() eventType:"+(eventType==null?"null":eventType));
 		if (!events.containsKey(eventType)) {
-			logger.log(Level.FINE, "registerListener() found in ```events```, will be added to list");
+			logger.log(Level.FINER, "registerListener() found in ```events```, will be added to list");
 			events.put(eventType, new ArrayList<IRCTEvent>());
 		}
-		logger.log(Level.FINE, "registerListener() calling init() on eventListener with params:"+(eci.getParameters()==null?"null":eci.getParameters().toString()));
+		logger.log(Level.FINER, "registerListener() calling init() on eventListener with params:"+(eci.getParameters()==null?"null":eci.getParameters().toString()));
 		irctEvent.init(eci.getParameters());
-		logger.log(Level.FINE, "registerListener() update Event in list with the IRCTEvent that was generated.");
+		logger.log(Level.FINER, "registerListener() update Event in list with the IRCTEvent that was generated.");
 		events.get(eventType).add(irctEvent);
-		logger.log(Level.FINE, "registerListener() Finished.");
+		logger.log(Level.FINER, "registerListener() Finished.");
 	}
 
 	// Action Events
@@ -306,19 +306,19 @@ public class IRCTEventListener {
 	 *            Result
 	 */
 	public void beforeGetResult(User user, Long resultId) {
-		logger.log(Level.FINE, "beforeGetResult() user:"+user.getName()+" resultId:"+resultId);
+		logger.log(Level.FINEST, "beforeGetResult() user:"+user.getName()+" resultId:"+resultId);
 		
-		logger.log(Level.FINE, "beforeGetResult() selecting ```BeforeGetResult``` from "+(events==null?"null":events.size())+" events.");
+		logger.log(Level.FINEST, "beforeGetResult() selecting ```BeforeGetResult``` from "+(events==null?"null":events.size())+" events.");
 		List<IRCTEvent> irctEvents = events.get("BeforeGetResult");
 		if (irctEvents == null) {
-			logger.log(Level.FINE, "beforeGetResult() There were no ```BeforeGetResult``` events.");
+			logger.log(Level.FINEST, "beforeGetResult() There were no ```BeforeGetResult``` events.");
 		} else {
-			logger.log(Level.FINE, "beforeGetResult() executing "+(irctEvents==null?"null":irctEvents.size())+" events.");
+			logger.log(Level.FINEST, "beforeGetResult() executing "+(irctEvents==null?"null":irctEvents.size())+" events.");
 			for (IRCTEvent irctEvent : irctEvents) {
-				logger.log(Level.FINE, "beforeGetResult() firing "+(((BeforeGetResult) irctEvent)==null?"null":((BeforeGetResult) irctEvent).toString())+" event.");
+				logger.log(Level.FINEST, "beforeGetResult() firing "+(((BeforeGetResult) irctEvent)==null?"null":((BeforeGetResult) irctEvent).toString())+" event.");
 				((BeforeGetResult) irctEvent).fire(user, resultId);
 			}
-			logger.log(Level.FINE, "beforeGetResult() Finished firing all ```BeforeGetResult``` events.");
+			logger.log(Level.FINEST, "beforeGetResult() Finished firing all ```BeforeGetResult``` events.");
 		}
 	}
 
@@ -329,12 +329,12 @@ public class IRCTEventListener {
 	 *            Result
 	 */
 	public void beforeSaveResult(Result result) {
-		logger.log(Level.FINE, "beforeSaveResult() result:"+(result==null?"null":result.getId()));
+		logger.log(Level.FINEST, "beforeSaveResult() result:"+(result==null?"null":result.getId()));
 		
-		logger.log(Level.FINE, "beforeSaveResult() selecting all ```BeforeSaveResult``` from "+(events==null?"null":events.size())+" events.");
+		logger.log(Level.FINEST, "beforeSaveResult() selecting all ```BeforeSaveResult``` from "+(events==null?"null":events.size())+" events.");
 		List<IRCTEvent> irctEvents = events.get("BeforeSaveResult");
 		if (irctEvents == null) {
-			logger.log(Level.FINE, "beforeSaveResult() there are no ```BeforeSaveResult``` events.");
+			logger.log(Level.FINEST, "beforeSaveResult() there are no ```BeforeSaveResult``` events.");
 		} else {
 			for (IRCTEvent irctEvent : irctEvents) {
 				((BeforeSaveResult) irctEvent).fire(result);
