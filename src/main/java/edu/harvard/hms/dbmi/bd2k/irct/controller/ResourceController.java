@@ -147,10 +147,10 @@ public class ResourceController {
 	 */
 	public boolean isValidCategory(String categoryName) {
 		if (this.categories == null) {
-			logger.log(Level.FINE, "isValidCategory(`"+categoryName+"`) missing `categories` list.");
+			logger.log(Level.FINEST, "isValidCategory(`"+categoryName+"`) missing `categories` list.");
 			return false;
 		}
-		logger.log(Level.FINE, "isValidCategory(`"+categoryName+"`) in "+this.categories.toString());
+		logger.log(Level.FINEST, "isValidCategory(`"+categoryName+"`) in "+this.categories.toString());
 		return this.categories.contains(categoryName);
 	}
 

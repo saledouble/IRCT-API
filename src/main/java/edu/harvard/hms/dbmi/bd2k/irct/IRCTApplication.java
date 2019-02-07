@@ -66,30 +66,30 @@ public class IRCTApplication {
 	 */
 	@PostConstruct
 	public void init() {
-		log.info("Starting IRCT Application");
+		log.finest("Starting IRCT Application");
 		this.oem = objectEntityManager.createEntityManager();
 		this.oem.setFlushMode(FlushModeType.COMMIT);
 
-		log.info("Loading Data Converters");
+		log.finest("Loading Data Converters");
 		loadDataConverters();
-		log.info("Finished Data Converters");
+		log.finest("Finished Data Converters");
 
-		log.info("Loading Event Listeners");
+		log.finest("Loading Event Listeners");
 		loadIRCTEventListeners();
-		log.info("Finished Loading Event Listeners");
+		log.finest("Finished Loading Event Listeners");
 
 		this.oem = objectEntityManager.createEntityManager();
 		this.oem.setFlushMode(FlushModeType.COMMIT);
 
-		log.info("Loading Join Types");
+		log.finest("Loading Join Types");
 		loadJoins();
-		log.info("Finished Loading Join Types");
+		log.finest("Finished Loading Join Types");
 
-		log.info("Loading Resources");
+		log.finest("Loading Resources");
 		loadResources();
-		log.info("Finished Loading Resources");
+		log.finest("Finished Loading Resources");
 
-		log.info("Finished Starting IRCT Application");
+		log.finest("Finished Starting IRCT Application");
 	}
 
 	public String getVersion() {
@@ -135,7 +135,7 @@ public class IRCTApplication {
 			irctEventListener.registerListener(irctEvent);
 		}
 
-		log.info("Loaded " + allEventListeners.size() + " IRCT Event listeners");
+		log.finer("Loaded " + allEventListeners.size() + " IRCT Event listeners");
 	}
 
 	/**
@@ -160,7 +160,7 @@ public class IRCTApplication {
 
 		}
 
-		log.info("Loaded " + allDCI.size() + " result data converters");
+		log.finest("Loaded " + allDCI.size() + " result data converters");
 	}
 
 	/**
@@ -177,7 +177,7 @@ public class IRCTApplication {
 		for (IRCTJoin jt : oem.createQuery(criteria).getResultList()) {
 			this.supportedJoinTypes.put(jt.getName(), jt);
 		}
-		log.info("Loaded " + this.supportedJoinTypes.size() + " joins");
+		log.finest("Loaded " + this.supportedJoinTypes.size() + " joins");
 	}
 
 	/**
@@ -193,19 +193,19 @@ public class IRCTApplication {
 		CriteriaQuery<Resource> criteria = cb.createQuery(Resource.class);
 		Root<Resource> load = criteria.from(Resource.class);
 		criteria.select(load);
-		log.info("loadResources() "+criteria.toString());
+		log.fine("loadResources() "+criteria.toString());
 		for (Resource resource : oem.createQuery(criteria).getResultList()) {
 			try {
-				log.info("loadResources() Setting up resource:"+resource.toString()+" "+resource.getId()+" "+resource.getClass().toString());
+				log.fine("loadResources() Setting up resource:"+resource.toString()+" "+resource.getId()+" "+resource.getClass().toString());
 				resource.setup();
-				log.info("loadResources() resource ```"+resource.getName()+"``` has been loaded");
+				log.fine("loadResources() resource ```"+resource.getName()+"``` has been loaded");
 				this.resources.put(resource.getName(), resource);
 			} catch (ResourceInterfaceException e) {
 				log.warning("loadResources() Exception: "+e.getMessage());
 				e.printStackTrace();
 			}
 		}
-		log.info("loadResources() Loaded " + this.resources.size() + " resources");
+		log.fine("loadResources() Loaded " + this.resources.size() + " resources");
 	}
 
 	/**
