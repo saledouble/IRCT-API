@@ -46,33 +46,33 @@ public class SecurityUtility {
 			String resourceClientId, SecureSession session) {
 
 		if (session.getToken() != null) {
-			java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() returning token stored in the session:"+session.getToken().toString());
+			java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() returning token stored in the session:"+session.getToken().toString());
 			return session.getToken().toString();
 		} else {
 			java.util.logging.Logger.getGlobal().log(Level.SEVERE, "delegateToken() session DOES NOT CONTAINT A TOKEN!");
 		}
 
-		java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() namespace:"+namespace+" resource.client.id:"+resourceClientId+" session.id:"+session.getId());
+		java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() namespace:"+namespace+" resource.client.id:"+resourceClientId+" session.id:"+session.getId());
 
 		if (((JWT) session.getToken()).getClientId().equals(resourceClientId)) {
-			java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() session token matches the specified resourceClientId");
+			java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() session token matches the specified resourceClientId");
 			return session.getToken().toString();
 		} else {
-			java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() session token DOES NOT MATCH the specified resourceClientId");
+			java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() session token DOES NOT MATCH the specified resourceClientId");
 		}
 
 		if (session.getDelegated().containsKey(resourceClientId)) {
-			java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() returning a Bearer token");
+			java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() returning a Bearer token");
 			return "Bearer "
 					+ session.getDelegated().get(resourceClientId).toString();
 		} else {
-			java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() session does NOT have a delegated token.");
+			java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() session does NOT have a delegated token.");
 		}
 
 		try {
 			HttpClient client = HttpClientBuilder.create().build();
 			HttpPost post = new HttpPost("https://" + namespace + "/delegation");
-			java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() call to ```https://"+namespace+"/delegation``` URL.");
+			java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() call to ```https://"+namespace+"/delegation``` URL.");
 
 			List<NameValuePair> urlParameters = new ArrayList<NameValuePair>();
 			urlParameters.add(new BasicNameValuePair("grant_type",
@@ -107,7 +107,7 @@ public class SecurityUtility {
 			jwt.setType(responseObject.getString("token_type"));
 			jwt.setIdToken(responseObject.getString("id_token"));
 			session.getDelegated().put(resourceClientId, jwt);
-			java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() returning new delegation token:"+responseObject.getString("id_token"));
+			java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() returning new delegation token:"+responseObject.getString("id_token"));
 			return "Bearer " + responseObject.getString("id_token");
 
 		} catch (IOException e) {
@@ -115,7 +115,7 @@ public class SecurityUtility {
 			e.printStackTrace();
 		}
 
-		java.util.logging.Logger.getGlobal().log(Level.FINE, "delegateToken() returning NULL, after exception.");
+		java.util.logging.Logger.getGlobal().log(Level.INFO, "delegateToken() returning NULL, after exception.");
 		return null;
 	}
 }

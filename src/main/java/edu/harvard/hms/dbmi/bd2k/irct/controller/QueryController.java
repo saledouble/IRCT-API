@@ -450,7 +450,7 @@ public class QueryController {
 		} else {
 			entityManager.merge(this.query);
 		}
-		log.info("Query " + this.query.getId() + " saved");
+		log.finest("Query " + this.query.getId() + " saved");
 
 	}
 
@@ -471,7 +471,7 @@ public class QueryController {
 		if (this.query == null) {
 			throw new QueryException("No query to load.");
 		}
-		log.info("Query " + this.query.getId() + " loaded");
+		log.finest("Query " + this.query.getId() + " loaded");
 	}
 
 	/**
